@@ -91,6 +91,11 @@ button:hover{background:#fff}button:disabled{background:#333;color:#777;cursor:n
  .home-modal-title{font-size:34px}
 }
 
+
+.player-info-card{border:1px solid #444}
+.player-info-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
+.player-mini-dashboard{margin:18px 0 8px}
+
 </style>
 </head>
 
@@ -241,7 +246,8 @@ function afficherMenu(){
    <button onclick="afficherBoutique()">🛒 BOUTIQUE</button><br><br>
    <button onclick="afficherStock()">📦 MON STOCK</button><br><br>
    <button onclick="choisirTerrain()">🎪 PRÉPARER UNE TEUF</button><br><br>
-   <button onclick="afficherInfoLinePublique()">📡 INFO LINE PUBLIQUE</button>
+   <button onclick="afficherInfoLinePublique()">📡 INFO LINE PUBLIQUE</button><br><br>
+   <button onclick="afficherInfosJoueurs()">👥 INFOS DES JOUEURS</button>
   </div>
  </div>`;
 }
@@ -449,7 +455,6 @@ function afficherInfoLine(){
  <div class="header"><h1>📡 INFO LINE</h1><p class="subtitle">ANNONCE TA TEUF — LA COMMUNAUTÉ POURRA LA VOIR.</p></div>
  <div class="panel"><div class="dashboard"><div class="stat"><div class="stat-title">PUISSANCE RÉELLE</div><div class="stat-value green">${s.puissance} kW</div></div><div class="stat"><div class="stat-title">RÉPUTATION</div><div class="stat-value">★ ${reputation}</div></div></div>
  <h2>🎙️ TON ANNONCE</h2><p class="subtitle">Exemple : « Ce soir grosse teuf, 18 kilowatts, rendez-vous dans la forêt. »</p>
- <button id="microButton" onclick="lancerMicro()">🎙️ PARLER</button><br><br>
  <textarea id="transcription" class="transcription" placeholder="Écris ton Info Line ici..."></textarea><br><br>
  <button onclick="analyserKW()">🔎 ANALYSER LES kW</button><br><br>
  <button style="background:#222;color:#fff;border:1px solid #555" onclick="effacerInfoLine()">🗑️ EFFACER</button></div>
@@ -524,6 +529,93 @@ async function publierInfoLine(){
  afficherMessage("📡 Info Line publiée !");
  afficherInfoLinePublique();
 }
+
+async function afficherInfosJoueurs(){
+ if(!partieId){afficherMenu();return}
+
+ const [{data:joueurs,error:joueursError},{data:lines,error:linesError}]=await Promise.all([
+   supabaseClient.from("joueurs")
+     .select("id,sound_name,argent,reputation")
+     .eq("partie_id",partieId)
+     .order("created_at",{ascending:true}),
+   supabaseClient.from("info_lines")
+     .select("joueur_id,texte,kw_annonce,kw_reel,participants_annonces,bluff_pourcentage,created_at")
+     .eq("partie_id",partieId)
+     .order("created_at",{ascending:false})
+ ]);
+
+ let html=`<div class="page">
+  <div class="top-line"><span>RTS // JOUEURS</span><span class="green">${partieCode||""}</span></div>
+  <button class="back-button" onclick="afficherMenu()">← RETOUR AU MENU</button>
+  <div class="header"><h1>👥 JOUEURS</h1><p class="subtitle">LES SOUNDS DE LA PARTIE ET LEURS DERNIÈRES INFO LINES.</p></div>`;
+
+ if(joueursError){
+   console.error(joueursError);
+   html+=`<div class="panel"><div class="warning-box">❌ Impossible de charger les joueurs.</div></div></div>`;
+   document.getElementById("app").innerHTML=html;
+   return;
+ }
+
+ const latest={};
+ (lines||[]).forEach(line=>{
+   if(!latest[line.joueur_id]) latest[line.joueur_id]=line;
+ });
+
+ html+=`<div class="panel"><div class="small">JOUEURS DANS LA PARTIE : ${joueurs?.length||0}</div></div>`;
+
+ (joueurs||[]).forEach(j=>{
+   const line=latest[j.id];
+   html+=`<div class="panel player-info-card">
+     <div class="player-info-head">
+       <div>
+         <div class="small">SOUND SYSTEM</div>
+         <h2 style="margin:4px 0 0">${escapeHtml(j.sound_name||"Joueur")}</h2>
+       </div>
+       ${j.id===joueurId?'<span class="tag tag-provided">TOI</span>':""}
+     </div>
+
+     <div class="dashboard player-mini-dashboard">
+       <div class="stat">
+         <div class="stat-title">Argent</div>
+         <div class="stat-value green">${Number(j.argent??0)} €</div>
+       </div>
+       <div class="stat">
+         <div class="stat-title">Réputation</div>
+         <div class="stat-value">★ ${Number(j.reputation??0)}</div>
+       </div>
+     </div>`;
+
+   if(line){
+     html+=`<div class="info-card public-line">
+       <div class="small">DERNIÈRE INFO LINE</div>
+       <strong>${escapeHtml(line.texte||"")}</strong>
+       <br><br>
+       <span class="small">
+         Annoncé : ${line.kw_annonce??"?"} kW ·
+         Réel : ${line.kw_reel??"?"} kW ·
+         Participants : ${line.participants_annonces??0}
+       </span>
+       <br>
+       <span class="small">
+         Bluff : +${Number(line.bluff_pourcentage||0).toFixed(1)} %
+       </span>
+     </div>`;
+   }else{
+     html+=`<div class="empty">Aucune Info Line publiée par ce joueur.</div>`;
+   }
+
+   html+=`</div>`;
+ });
+
+ if(linesError){
+   console.error(linesError);
+   html+=`<div class="panel"><div class="warning-box">⚠️ Les informations des joueurs sont affichées, mais les Info Lines n'ont pas pu être chargées.</div></div>`;
+ }
+
+ html+=`</div>`;
+ document.getElementById("app").innerHTML=html;
+}
+
 async function afficherInfoLinePublique(){
  if(!partieId){afficherMenu();return}
  const {data,error}=await supabaseClient.from("info_lines").select("*").eq("partie_id",partieId).order("created_at",{ascending:false});
