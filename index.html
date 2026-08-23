@@ -96,6 +96,153 @@ button:hover{background:#fff}button:disabled{background:#333;color:#777;cursor:n
 .player-info-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}
 .player-mini-dashboard{margin:18px 0 8px}
 
+
+/* =========================================================
+   UNDERGROUND / FREE PARTY UI — REFONTE VISUELLE
+========================================================= */
+:root{
+  --acid:#c6ff00;
+  --pink:#ff2ea6;
+  --cyan:#27e7ff;
+  --orange:#ff6b2c;
+  --violet:#9b5cff;
+  --ink:#070707;
+  --paper:#e9e4d6;
+  --muted:#858585;
+  --line:#343434;
+}
+body{
+  background:
+    radial-gradient(circle at 15% 10%,rgba(198,255,0,.06),transparent 28%),
+    radial-gradient(circle at 85% 75%,rgba(255,46,166,.06),transparent 30%),
+    #050505;
+}
+.page{width:min(1180px,94%);padding:26px 0 90px}
+.header{position:relative;border-left:0;padding:24px 26px;margin-bottom:24px;overflow:hidden;
+  background:linear-gradient(135deg,#111 0%,#080808 70%);
+  border:1px solid #333;box-shadow:9px 9px 0 var(--acid)}
+.header:after{content:"RAVE / DIY / FREE PARTY / SOUND SYSTEM";position:absolute;right:-25px;bottom:10px;transform:rotate(-7deg);font-size:10px;letter-spacing:3px;color:#252525}
+h1{font-size:clamp(42px,7vw,78px);letter-spacing:-2px;text-shadow:4px 4px 0 #252525,7px 7px 0 var(--pink)}
+h2{letter-spacing:1px}
+.panel{
+  position:relative;background:rgba(12,12,12,.94);border:1px solid #3d3d3d;
+  padding:24px;margin-bottom:22px;box-shadow:7px 7px 0 rgba(198,255,0,.9)
+}
+.panel:before{content:"";position:absolute;left:0;top:0;width:45px;height:3px;background:var(--acid)}
+.dashboard{gap:12px}
+.stat{border:1px solid #383838;background:#0b0b0b;position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;right:-16px;bottom:-20px;width:55px;height:55px;border:1px solid #252525;transform:rotate(45deg)}
+button{transition:.15s transform,.15s box-shadow,.15s background;letter-spacing:.5px}
+button:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 #fff}
+.back-button:hover{box-shadow:4px 4px 0 var(--pink)}
+.brand{
+  display:flex;align-items:center;gap:10px;text-transform:uppercase;
+  border:1px solid #555;background:#0b0b0b;color:var(--paper);
+  box-shadow:5px 5px 0 var(--pink);font-size:15px
+}
+.products{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.product{
+  position:relative;min-height:300px;border:1px solid #353535;
+  background:linear-gradient(145deg,#101010,#070707);overflow:hidden;
+}
+.product:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent 0 13px,rgba(255,255,255,.018) 13px 14px);pointer-events:none}
+.product:hover{border-color:var(--acid);box-shadow:6px 6px 0 var(--acid)}
+.product-name{font-family:Impact,"Arial Black",sans-serif;text-transform:uppercase}
+.product-price{font-size:22px}
+.details{color:#aaa}
+.stock-item{background:#0a0a0a;border:1px solid #242424;margin:8px 0;padding:14px 16px}
+.stock-item:hover{border-color:#555}
+.terrain-grid{gap:18px}
+.terrain-card{position:relative;overflow:hidden;background:linear-gradient(145deg,#111,#070707);box-shadow:5px 5px 0 #222}
+.terrain-card:hover{box-shadow:5px 5px 0 var(--acid)}
+.terrain-icon{filter:grayscale(.2);font-size:58px}
+.message{border:2px solid #080808;box-shadow:7px 7px 0 var(--pink);font-size:13px}
+.name-input,.transcription{border-radius:0}
+.dice-panel{box-shadow:7px 7px 0 var(--pink)}
+.kw-result{box-shadow:5px 5px 0 var(--acid)}
+
+/* --- cartes matériel illustrées --- */
+.gear-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.gear-card{
+  position:relative;background:#0a0a0a;border:1px solid #343434;overflow:hidden;
+  min-height:245px;padding:0;transition:.18s transform,.18s border-color,.18s box-shadow
+}
+.gear-card:hover{transform:translateY(-3px);border-color:var(--acid);box-shadow:7px 7px 0 var(--acid)}
+.gear-card.used{border-color:var(--pink);box-shadow:5px 5px 0 var(--pink)}
+.gear-art{
+  height:118px;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(198,255,0,.14),transparent 34%),
+    repeating-linear-gradient(135deg,#0e0e0e 0 10px,#090909 10px 20px);
+  border-bottom:1px solid #333;position:relative
+}
+.gear-art:before{content:"";position:absolute;inset:12px;border:1px dashed #292929}
+.speaker-stack{display:flex;align-items:end;gap:8px;height:86px;filter:drop-shadow(4px 5px 0 #000)}
+.speaker-box{
+  width:42px;height:70px;background:linear-gradient(145deg,#222,#050505);
+  border:3px solid #666;border-radius:3px;position:relative;box-shadow:inset 0 0 0 3px #111
+}
+.speaker-box.big{width:58px;height:86px}
+.speaker-box:before{
+  content:"";position:absolute;left:50%;top:50%;width:27px;height:27px;
+  transform:translate(-50%,-50%);border-radius:50%;border:4px solid #777;
+  box-shadow:inset 0 0 0 5px #111,0 0 0 2px #222
+}
+.speaker-box:after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:3px;background:var(--acid)}
+.generator-art{font-size:64px;filter:grayscale(.3) drop-shadow(4px 5px 0 #000)}
+.palette-art{font-size:70px;filter:grayscale(.4) drop-shadow(5px 5px 0 #000)}
+.strap-art{font-size:68px;filter:grayscale(.3) drop-shadow(5px 5px 0 #000)}
+.gear-body{padding:15px}
+.gear-top{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.gear-title{font-family:Impact,"Arial Black",sans-serif;font-size:20px;line-height:1}
+.gear-brand{font-size:10px;color:#777;letter-spacing:1px;margin-bottom:5px}
+.gear-specs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:13px 0}
+.spec{border:1px solid #292929;padding:7px;background:#0e0e0e;font-size:10px}
+.spec b{display:block;color:#eee;font-size:13px;margin-top:2px}
+.gear-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.qty{font-size:11px;color:#999}.qty strong{color:var(--acid);font-size:16px}
+.add-gear{width:auto;min-width:125px;padding:10px 14px;background:var(--acid)}
+.add-gear:disabled{opacity:.4}
+.config-summary{
+  position:sticky;top:12px;z-index:3
+}
+.config-summary .panel{box-shadow:8px 8px 0 var(--pink)}
+.config-total{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0
+}
+.config-total .stat{padding:12px}
+.resource-strip{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px
+}
+.resource-card{border:1px dashed #444;padding:11px;background:#090909}
+.resource-card .resource-icon{font-size:28px;float:right}
+.resource-card strong{font-size:12px}
+.warning-box,.success-box{box-shadow:4px 4px 0 #222}
+.config-section-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border-bottom:1px solid #333;padding-bottom:10px;margin-bottom:15px
+}
+.config-section-title span{font-size:10px;color:#666;letter-spacing:2px}
+.mini-visual{
+  width:86px;height:70px;flex:none;border:1px solid #333;
+  display:flex;align-items:center;justify-content:center;background:#080808
+}
+.mini-visual .speaker-stack{transform:scale(.65)}
+@media(max-width:850px){
+ .products,.gear-grid{grid-template-columns:1fr 1fr}
+ .config-total{grid-template-columns:1fr 1fr}
+ .config-summary{position:static}
+}
+@media(max-width:560px){
+ .page{width:94%;padding-top:15px}
+ .header{padding:18px 16px;box-shadow:5px 5px 0 var(--acid)}
+ .products,.gear-grid{grid-template-columns:1fr}
+ .resource-strip{grid-template-columns:1fr}
+ .gear-art{height:105px}
+ .config-total{grid-template-columns:1fr 1fr}
+ .gear-specs{grid-template-columns:1fr 1fr}
+}
+
 </style>
 </head>
 
@@ -358,70 +505,187 @@ function calculerConfiguration(){
  },0);
  return {puissance,energie,req,app,solidite,capacite};
 }
+function speakerVisual(){
+ return `<div class="speaker-stack"><div class="speaker-box"></div><div class="speaker-box big"></div><div class="speaker-box"></div></div>`;
+}
+function gearVisual(type){
+ if(type==="generator") return `<div class="generator-art">⚡</div>`;
+ if(type==="palette") return `<div class="palette-art">🪵</div>`;
+ if(type==="strap") return `<div class="strap-art">🪢</div>`;
+ return speakerVisual();
+}
 function afficherConfiguration(){
- const s=calculerConfiguration(),stable=s.req===s.app,energyOK=!!generateurChoisi&&s.energie<=s.capacite;
- let html=`<div class="page"><div class="top-line"><span>RTS // CONFIGURATION</span><span class="green">${terrainChoisi}</span></div>
- <button class="back-button" onclick="choisirTerrain()">← CHANGER DE TERRAIN</button>
- <div class="header"><h1>CONFIGURE TON SOUND</h1><p class="subtitle">UTILISE UNIQUEMENT LE MATÉRIEL DE TON STOCK</p></div>
- <div class="panel"><h2>🔊 CAISSONS</h2>`;
+ const s=calculerConfiguration();
+ const stable=s.req===s.app;
+ const energyOK=configurationGenerateurs.length>0 && s.energie<=s.capacite;
+
+ let html=`<div class="page">
+  <div class="top-line"><span>RTS // SOUND BUILDER</span><span class="green">${escapeHtml(terrainChoisi||"TERRAIN")}</span></div>
+  <button class="back-button" onclick="choisirTerrain()">← CHANGER DE TERRAIN</button>
+
+  <div class="header">
+    <div class="home-kicker">FREE PARTY / DIY / SOUND SYSTEM</div>
+    <h1>BUILD TON SOUND</h1>
+    <p class="subtitle">ASSEMBLE TON MUR. GÈRE TON ÉNERGIE. FAIS TREMBLER LE TERRAIN.</p>
+  </div>
+
+  <div class="panel">
+    <div class="config-section-title">
+      <h2 style="margin:0">🔊 LE MUR</h2>
+      <span>${configuration.length} CAISSON${configuration.length>1?"S":""} INSTALLÉ${configuration.length>1?"S":""}</span>
+    </div>
+    <div class="gear-grid">`;
+
  produits.forEach(p=>{
-  const poss=quantite(p.id);if(!poss)return;
-  const used=configuration.filter(x=>x===p.id).length;
-  html+=`<div class="stock-item"><div><strong>${p.marque} — ${p.nom}</strong><br>${p.puissance} kW · ${p.energie} énergie · ${p.type==="SUB"?p.stabiliteRequise+" stabilité requise":"+"+p.stabiliteApportee+" stabilité"} · ${p.solidite}/3<br><span class="small">Possédé ${poss} · Utilisé ${used}</span></div><button style="width:180px" onclick="ajouterCaisson('${p.id}')" ${used>=poss?"disabled":""}>${used>=poss?"MAX":"AJOUTER"}</button></div>`;
- });
- if(!produits.some(p=>quantite(p.id)>0))html+=`<div class="empty">Achète d'abord du matériel dans la Boutique.</div>`;
- html+=`</div><div class="panel"><h2>🪵 PALETTES</h2>`;
- if(!quantite("PALETTE"))html+=`<div class="empty">Aucune palette.</div>`;
- else configuration.forEach((id,i)=>{const p=produits.find(x=>x.id===id);if(p?.type!=="SUB")return;const on=palettes.includes(i);html+=`<div class="sub-option"><strong>SUB #${i+1}</strong> — ${p.marque} ${p.nom}<br>${on?'<span class="green">🪵 PALETTE INSTALLÉE</span>':'<span class="small">Aucune palette</span>'}<button onclick="${on?`retirerPalette(${i})`:`ajouterPalette(${i})`}" ${!on&&palettes.length>=quantite("PALETTE")?"disabled":""}>${on?"RETIRER LA PALETTE":"AJOUTER UNE PALETTE"}</button></div>`});
- html+=`</div><div class="panel"><h2>🪢 SANGLE</h2>${quantite("SANGLE")?`<button onclick="toggleSangle()">${sangleUtilisee?"RETIRER LA SANGLE":"UTILISER LA SANGLE"}</button>`:`<div class="empty">Aucune sangle.</div>`}</div>`;
- html+=`<div class="panel"><h2>⚡ GÉNÉRATRICES</h2>
- <p class="small">Plusieurs exemplaires du même modèle sont autorisés si ton stock le permet.</p>
- ${generateurs.map(g=>{
-   const poss=quantite(g.id);
-   if(!poss)return "";
-   const utilise=configurationGenerateurs.filter(x=>x===g.id).length;
-   return `<div class="stock-item ${utilise?"selected":""}">
-     <div><strong>${g.nom}</strong><br>Capacité : ${g.energie} énergie · Possédé : ${poss} · Utilisé : ${utilise}</div>
-     <div style="display:flex;gap:7px;align-items:center">
-       <button style="width:50px;padding:9px" onclick="modifierGenerateur('${g.id}',-1)" ${utilise<=0?"disabled":""}>−</button>
-       <div class="stock-count" style="min-width:25px;text-align:center">${utilise}</div>
-       <button style="width:50px;padding:9px" onclick="modifierGenerateur('${g.id}',1)" ${utilise>=poss?"disabled":""}>+</button>
+   const poss=quantite(p.id);
+   if(!poss)return;
+   const used=configuration.filter(x=>x===p.id).length;
+   const typeLabel=p.type==="SUB"?"SUB":p.type==="MEDIUM"?"MEDIUM":"TÊTE";
+   html+=`<div class="gear-card ${used?"used":""}">
+     <div class="gear-art">${speakerVisual()}</div>
+     <div class="gear-body">
+       <div class="gear-top">
+         <div>
+           <div class="gear-brand">${escapeHtml(p.marque)}</div>
+           <div class="gear-title">${escapeHtml(p.nom)}</div>
+         </div>
+         <span class="tag ${used?"tag-provided":"tag-required"}">${typeLabel}</span>
+       </div>
+       <div class="gear-specs">
+         <div class="spec">🔊 PUISSANCE<b>${p.puissance} kW</b></div>
+         <div class="spec">⚡ ÉNERGIE<b>${p.energie}</b></div>
+         <div class="spec">🧱 STABILITÉ<b>${p.type==="SUB"?p.stabiliteRequise:"+"+p.stabiliteApportee}</b></div>
+         <div class="spec">🛠️ SOLIDITÉ<b>${p.solidite}/3</b></div>
+       </div>
+       <div class="gear-footer">
+         <div class="qty">STOCK <strong>${poss}</strong> · INSTALLÉ <strong>${used}</strong></div>
+         <button class="add-gear" onclick="ajouterCaisson('${p.id}')" ${used>=poss?"disabled":""}>${used>=poss?"MAX":"＋ AJOUTER"}</button>
+       </div>
      </div>
    </div>`;
- }).join("")}
- </div><div class="panel"><h2>📊 RÉSUMÉ</h2>`;
+ });
+ if(!produits.some(p=>quantite(p.id)>0))html+=`<div class="empty">Ton stock est vide. Passe par la boutique pour acheter du matériel.</div>`;
+ html+=`</div></div>
+
+ <div class="panel">
+   <div class="config-section-title"><h2 style="margin:0">🧰 ACCESSOIRES</h2><span>STRUCTURE / SÉCURITÉ</span></div>
+   <div class="gear-grid">`;
+
+ if(quantite("PALETTE")){
+   const subs=configuration.map((id,i)=>({p:produits.find(x=>x.id===id),i})).filter(x=>x.p?.type==="SUB");
+   html+=`<div class="gear-card"><div class="gear-art">${gearVisual("palette")}</div><div class="gear-body">
+    <div class="gear-brand">ACCESSOIRE</div><div class="gear-title">PALETTE</div>
+    <div class="details">Support de SUB. Chaque palette attachée ajoute +1 stabilité requise.</div>
+    <div class="qty">STOCK <strong>${quantite("PALETTE")}</strong> · INSTALLÉES <strong>${palettes.length}</strong></div>
+    <div style="margin-top:12px">`;
+   if(!subs.length) html+=`<div class="small">Ajoute d'abord un SUB pour pouvoir l'équiper.</div>`;
+   subs.forEach(x=>{
+      const on=palettes.includes(x.i);
+      html+=`<div class="sub-option" style="margin:8px 0">
+        <strong>SUB #${x.i+1}</strong> — ${escapeHtml(x.p.nom)}
+        <button onclick="${on?`retirerPalette(${x.i})`:`ajouterPalette(${x.i})`}" ${!on&&palettes.length>=quantite("PALETTE")?"disabled":""}>
+          ${on?"RETIRER":"🪵 INSTALLER"}
+        </button>
+      </div>`;
+   });
+   html+=`</div></div></div>`;
+ }else{
+   html+=`<div class="gear-card"><div class="gear-art">${gearVisual("palette")}</div><div class="gear-body"><div class="gear-title">PALETTE</div><div class="empty">Aucune palette en stock.</div></div></div>`;
+ }
+
+ html+=`<div class="gear-card"><div class="gear-art">${gearVisual("strap")}</div><div class="gear-body">
+   <div class="gear-brand">ACCESSOIRE / MAX 1</div><div class="gear-title">SANGLE</div>
+   <div class="details">Renforce l'installation et apporte +1 stabilité. Une seule sangle peut être utilisée par teuf.</div>
+   <div class="gear-footer"><div class="qty">STOCK <strong>${quantite("SANGLE")}</strong></div>
+   ${quantite("SANGLE")?`<button class="add-gear" onclick="toggleSangle()">${sangleUtilisee?"RETIRER":"🪢 UTILISER"}</button>`:`<button class="add-gear" disabled>ÉPUISÉ</button>`}</div>
+   ${sangleUtilisee?`<div class="success-box" style="margin-top:12px">🪢 SANGLE INSTALLÉE — +1 stabilité apportée</div>`:""}
+ </div></div></div></div>
+
+ <div class="panel">
+   <div class="config-section-title"><h2 style="margin:0">⚡ ÉNERGIE</h2><span>GÉNÉRATRICES</span></div>
+   <p class="subtitle">Tu peux utiliser plusieurs exemplaires du même modèle tant que ton stock le permet.</p>
+   <div class="gear-grid">`;
+
+ generateurs.forEach(g=>{
+   const poss=quantite(g.id);
+   if(!poss)return;
+   const used=configurationGenerateurs.filter(x=>x===g.id).length;
+   html+=`<div class="gear-card ${used?"used":""}">
+     <div class="gear-art">${gearVisual("generator")}</div>
+     <div class="gear-body">
+       <div class="gear-brand">GÉNÉRATRICE</div>
+       <div class="gear-title">${escapeHtml(g.nom)}</div>
+       <div class="gear-specs">
+         <div class="spec">⚡ CAPACITÉ<b>${g.energie}</b></div>
+         <div class="spec">💰 PRIX<b>${g.prix} €</b></div>
+       </div>
+       <div class="gear-footer">
+         <div class="qty">STOCK <strong>${poss}</strong> · UTILISÉ <strong>${used}</strong></div>
+         <div style="display:flex;gap:6px">
+           <button class="add-gear" style="min-width:45px" onclick="modifierGenerateur('${g.id}',-1)" ${used<=0?"disabled":""}>−</button>
+           <button class="add-gear" style="min-width:45px" onclick="modifierGenerateur('${g.id}',1)" ${used>=poss?"disabled":""}>＋</button>
+         </div>
+       </div>
+     </div>
+   </div>`;
+ });
+ if(!generateurs.some(g=>quantite(g.id)>0))html+=`<div class="empty">Aucune génératrice en stock.</div>`;
+ html+=`</div></div>
+
+ <div class="config-summary">
+ <div class="panel">
+   <div class="config-section-title"><h2 style="margin:0">📊 RÉSUMÉ DU SOUND</h2><span>LIVE BUILD</span></div>
+
+   <div class="config-total">
+     <div class="stat"><div class="stat-title">Puissance</div><div class="stat-value green">${s.puissance} kW</div></div>
+     <div class="stat"><div class="stat-title">Consommation</div><div class="stat-value">${s.energie}</div></div>
+     <div class="stat"><div class="stat-title">Énergie dispo</div><div class="stat-value">${s.capacite}</div></div>
+     <div class="stat"><div class="stat-title">Solidité</div><div class="stat-value">${s.solidite}/3</div></div>
+   </div>
+
+   <div class="resource-strip">
+     <div class="resource-card"><div class="resource-icon">🧱</div><strong>STABILITÉ</strong><br><span class="${stable?"green":"red"}">${s.req} requis / ${s.app} apportés</span></div>
+     <div class="resource-card"><div class="resource-icon">⚡</div><strong>GÉNÉRATION</strong><br><span class="${energyOK?"green":"red"}">${s.energie} / ${s.capacite}</span></div>
+     <div class="resource-card"><div class="resource-icon">🔊</div><strong>MUR</strong><br>${configuration.length} caisson${configuration.length>1?"s":""}</div>
+   </div>
+
+   <div class="${stable?"success-box":"warning-box"}">${stable?"🟢":"🔴"} <strong>STABILITÉ : ${s.req} / ${s.app}</strong> — ${stable?"CONFIGURATION ÉQUILIBRÉE":"AJUSTE LES PALETTES / SANGLES / CAISSONS"}</div>
+   ${!configuration.length?`<div class="warning-box">⚠️ Ajoute au moins un caisson.</div>`:""}
+   ${configurationGenerateurs.length&&!energyOK?`<div class="warning-box">❌ Génératrice insuffisante : ${s.energie} consommés pour ${s.capacite} disponibles.</div>`:""}
+   ${!configurationGenerateurs.length?`<div class="warning-box">⚠️ Aucune génératrice sélectionnée.</div>`:""}
+
+   <div class="brand" style="margin-top:18px">🔊 CAISSONS INSTALLÉS</div>`;
  configuration.forEach((id,i)=>{
- const p=produits.find(x=>x.id===id);if(!p)return;
- html+=`<div class="info-card">
-  <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-   <div><div class="small">${p.marque}</div><strong style="font-size:20px">${p.nom}</strong></div>
-   <button style="width:110px;padding:9px" onclick="retirerCaisson(${i})">RETIRER</button>
-  </div>
-  <div class="details" style="margin-top:12px">
-   🔊 <strong>Puissance :</strong> ${p.puissance} kW<br>
-   🧱 <strong>Stabilité requise :</strong> ${p.stabiliteRequise}<br>
-   🧱 <strong>Stabilité apportée :</strong> +${p.stabiliteApportee}<br>
-   ⚡ <strong>Énergie :</strong> ${p.energie}<br>
-   🛠️ <strong>Solidité :</strong> ${p.solidite}/3<br>
-   ${palettes.includes(i)?'🪵 <strong>Palette :</strong> installée (+1 stabilité requise)<br>':''}
-   📦 <strong>Stock :</strong> ${quantite(p.id)} · <strong>Dans la config :</strong> ${configuration.filter(x=>x===p.id).length}
-  </div>
- </div>`;
-});
- if(!configuration.length)html+=`<div class="empty">Aucun caisson sélectionné.</div>`;
- html+=`<div class="brand" style="margin-top:20px">⚡ GÉNÉRATRICES UTILISÉES</div>`;
- if(!configurationGenerateurs.length) html+=`<div class="empty">Aucune génératrice sélectionnée.</div>`;
+   const p=produits.find(x=>x.id===id);if(!p)return;
+   html+=`<div class="stock-item">
+     <div style="display:flex;gap:14px;align-items:center">
+       <div class="mini-visual">${speakerVisual()}</div>
+       <div><div class="small">${escapeHtml(p.marque)}</div><strong>${escapeHtml(p.nom)}</strong>
+       <div class="small">${p.puissance} kW · ${p.energie} énergie · ${p.solidite}/3 solidité</div>
+       ${palettes.includes(i)?'<span class="green small">🪵 PALETTE</span>':""}</div>
+     </div>
+     <button style="width:105px;padding:9px" onclick="retirerCaisson(${i})">RETIRER</button>
+   </div>`;
+ });
+ if(!configuration.length)html+=`<div class="empty">Le mur est encore vide.</div>`;
+
+ html+=`<div class="brand">⚡ GÉNÉRATRICES INSTALLÉES</div>`;
  const generatorCounts={};
  configurationGenerateurs.forEach(id=>generatorCounts[id]=(generatorCounts[id]||0)+1);
+ if(!Object.keys(generatorCounts).length)html+=`<div class="empty">Aucune génératrice sélectionnée.</div>`;
  Object.entries(generatorCounts).forEach(([id,q])=>{
-  const g=generateurs.find(x=>x.id===id);if(!g)return;
-  html+=`<div class="info-card"><strong>${g.nom}</strong><div class="details">⚡ Capacité unitaire : ${g.energie} énergie<br>🔢 Quantité : ×${q}<br>⚡ Capacité totale : ${g.energie*q} énergie</div></div>`;
+   const g=generateurs.find(x=>x.id===id);if(!g)return;
+   html+=`<div class="stock-item"><div style="display:flex;align-items:center;gap:14px"><div class="mini-visual">${gearVisual("generator")}</div><div><strong>${escapeHtml(g.nom)}</strong><div class="small">×${q} · capacité totale ${g.energie*q}</div></div></div></div>`;
  });
- html+=`<div class="${stable?"success-box":"warning-box"}">🧱 STABILITÉ : ${s.req} / ${s.app} — ${stable?"ÉQUILIBRÉE":"INSTABLE"}</div><div class="dashboard"><div class="stat"><div class="stat-title">Puissance</div><div class="stat-value green">${s.puissance} kW</div></div><div class="stat"><div class="stat-title">Consommation</div><div class="stat-value">${s.energie}</div></div><div class="stat"><div class="stat-title">Génératrice</div><div class="stat-value">${generateurChoisi?s.capacite:"—"}</div></div><div class="stat"><div class="stat-title">Solidité</div><div class="stat-value">${s.solidite}/3</div></div></div>`;
- if(!generateurChoisi)html+=`<div class="warning-box">⚠️ Aucune génératrice.</div>`;else if(!energyOK)html+=`<div class="warning-box">❌ Génératrice insuffisante : ${s.energie} / ${s.capacite}</div>`;else html+=`<div class="success-box">✅ Énergie OK : ${s.energie} / ${s.capacite}</div>`;
- html+=`<button onclick="verrouillerConfiguration()" ${!configuration.length||!stable||!energyOK?"disabled":""}>${!configuration.length?"⚠️ AJOUTE DU MATÉRIEL":!stable?"⚠️ STABILITÉ À ÉQUILIBRER":!energyOK?"⚠️ GÉNÉRATRICE INSUFFISANTE":"🔒 VALIDER LA CONFIGURATION"}</button></div></div>`;
+
+ html+=`<br><button onclick="verrouillerConfiguration()" ${!configuration.length||!stable||!energyOK?"disabled":""}>
+ ${!configuration.length?"⚠️ AJOUTE DU MATÉRIEL":!stable?"⚠️ STABILITÉ À ÉQUILIBRER":!energyOK?"⚠️ GÉNÉRATRICE INSUFFISANTE":"🔒 VALIDER & PASSER À L'INFO LINE"}
+ </button>
+ </div></div></div>`;
+
  document.getElementById("app").innerHTML=html;
 }
+
 function modifierGenerateur(id,delta){
  const g=generateurs.find(x=>x.id===id);if(!g)return;
  const poss=quantite(id);
