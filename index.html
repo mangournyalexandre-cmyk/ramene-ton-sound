@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAMÈNE TON SOUND</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#090909;color:#eee;font-family:"Courier New",monospace}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025),rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);opacity:.35}
+.page{width:min(1100px,92%);margin:auto;padding:35px 0 70px}
+.top-line{display:flex;justify-content:space-between;color:#b7ff00;font-size:12px;letter-spacing:2px;margin-bottom:25px}
+.header{border-left:6px solid #b7ff00;padding-left:18px;margin-bottom:35px}
+h1{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(45px,8vw,80px);line-height:.85;margin:0 0 20px;text-transform:uppercase;text-shadow:5px 5px 0 #222,8px 8px 0 #b7ff00}
+h2{margin-top:0;text-transform:uppercase}
+.subtitle{color:#999;line-height:1.6}
+.green{color:#b7ff00}.red{color:#ff4b4b}.yellow{color:#ffd400}
+.panel{background:#111;border:1px solid #444;padding:25px;margin-bottom:25px;box-shadow:7px 7px 0 #b7ff00}
+.dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:25px}
+.stat{background:#111;border:1px solid #444;padding:18px}.stat-title{color:#777;font-size:11px;text-transform:uppercase}.stat-value{font-size:24px;font-weight:bold;margin-top:6px}
+button{width:100%;padding:15px;border:0;background:#b7ff00;color:#080808;font-family:"Courier New",monospace;font-weight:bold;font-size:15px;cursor:pointer}
+button:hover{background:#fff}button:disabled{background:#333;color:#777;cursor:not-allowed}
+.back-button{background:#222;color:#fff;border:1px solid #555;margin-bottom:20px}.back-button:hover{background:#333}
+.brand{margin-top:30px;margin-bottom:15px;padding:10px 15px;background:#b7ff00;color:#080808;font-weight:bold;letter-spacing:2px}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.product{background:#080808;border:1px solid #444;padding:20px}.product:hover{border-color:#b7ff00}.product-name{font-size:21px;font-weight:bold}.product-price{color:#b7ff00;font-size:20px;margin:12px 0;font-weight:bold}
+.details{color:#999;font-size:12px;line-height:1.7;margin-bottom:15px}
+.stock-item{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #333;padding:15px 0}.stock-item:last-child{border-bottom:0}
+.stock-count{color:#b7ff00;font-size:20px;font-weight:bold}.empty{color:#777;text-align:center;padding:25px}
+.name-input,.transcription{width:100%;padding:16px;background:#050505;color:#fff;border:2px solid #555;font-family:"Courier New",monospace;outline:none}
+.name-input{font-size:18px}.transcription{min-height:190px;resize:vertical;font-size:17px;line-height:1.5}.name-input:focus,.transcription:focus{border-color:#b7ff00}
+.message{position:fixed;bottom:25px;right:25px;background:#b7ff00;color:#080808;padding:15px 20px;font-weight:bold;display:none;z-index:100}
+.terrain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.terrain-card{background:#080808;border:1px solid #444;padding:25px;text-align:center}
+.terrain-card:hover{border-color:#b7ff00}.terrain-icon{font-size:50px;margin-bottom:15px}
+.tag{display:inline-block;padding:4px 8px;margin-top:5px;font-size:10px;font-weight:bold}.tag-required{background:#331111;color:#ff7777}.tag-provided{background:#172400;color:#b7ff00}
+.selected{border-color:#b7ff00!important;background:#121900!important}.warning-box{border:1px solid #ff4b4b;background:#180808;padding:15px;margin-top:15px}.success-box{border:1px solid #b7ff00;background:#101700;padding:15px;margin-top:15px}
+.sub-option{border:1px solid #444;padding:15px;margin-bottom:10px;background:#080808}
+.dice-panel{margin-top:25px;border:3px solid #ff4b4b;background:#160707;padding:30px;text-align:center;box-shadow:7px 7px 0 #ff4b4b}
+.dice{width:110px;height:110px;margin:25px auto;display:flex;align-items:center;justify-content:center;background:#eee;color:#080808;border:5px solid #555;border-radius:15px;font:900 60px Arial}
+.dice.rolling{animation:diceRoll .7s linear infinite}@keyframes diceRoll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(90deg) scale(1.08)}50%{transform:rotate(180deg) scale(.95)}75%{transform:rotate(270deg) scale(1.08)}100%{transform:rotate(360deg) scale(1)}}
+.kw-result{text-align:center;border:2px solid #b7ff00;background:#101700;padding:25px;margin-top:20px}.kw-number{font-size:50px;font-weight:bold;color:#b7ff00;margin:12px 0}.participants-number{font-size:38px;font-weight:bold;margin:10px 0}
+.info-card{background:#080808;border:1px solid #444;padding:18px;margin-bottom:12px}.public-line{border-left:4px solid #b7ff00;padding-left:15px}.small{font-size:11px;color:#777}
+@media(max-width:800px){.products,.terrain-grid,.dashboard{grid-template-columns:1fr}.stock-item{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+
+<body>
+<div id="app"></div>
+<div id="message" class="message"></div>
+
+<script>
+/* =========================================================
+   SUPABASE
+========================================================= */
+const SUPABASE_URL = "https://vohwcknopcajnleenooz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_3Bl4qI1S0BEQIf2OyBaU3Q_o8KCLr8E";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+/* =========================================================
+   ÉTAT
+========================================================= */
+let soundName="";
+let argent=2500;
+let reputation=0;
+let joueurId=null;
+let partieId=null;
+let partieCode=null;
+let stock={};
+let terrainChoisi=null;
+let configuration=[];
+let generateurChoisi=null;
+let palettes=[];
+let sangleUtilisee=false;
+let infoLineTexte="";
+let kwAnnonce=null;
+let diceResultat=null;
+let diceLance=false;
+let reconnaissanceVocale=null;
+let reconnaissanceActive=false;
+
+/* =========================================================
+   DONNÉES
+========================================================= */
+const produits=[
+{id:"LSD_SUB",marque:"🔴 LA SONO DÉBOÎTE",nom:"SUB",type:"SUB",puissance:8,stabiliteRequise:3,stabiliteApportee:0,energie:5,solidite:3,prix:1000},
+{id:"LSD_MEDIUM",marque:"🔴 LA SONO DÉBOÎTE",nom:"MEDIUM",type:"MEDIUM",puissance:5,stabiliteRequise:0,stabiliteApportee:2,energie:4,solidite:3,prix:650},
+{id:"LSD_TETE",marque:"🔴 LA SONO DÉBOÎTE",nom:"TÊTE",type:"TETE",puissance:3,stabiliteRequise:0,stabiliteApportee:1,energie:3,solidite:2,prix:300},
+{id:"KESON_SUB",marque:"🟡 KÉ-SON",nom:"SUB",type:"SUB",puissance:6,stabiliteRequise:2,stabiliteApportee:0,energie:4,solidite:2,prix:750},
+{id:"KESON_MEDIUM",marque:"🟡 KÉ-SON",nom:"MEDIUM",type:"MEDIUM",puissance:4,stabiliteRequise:0,stabiliteApportee:1,energie:3,solidite:2,prix:500},
+{id:"KESON_TETE",marque:"🟡 KÉ-SON",nom:"TÊTE",type:"TETE",puissance:3,stabiliteRequise:0,stabiliteApportee:1,energie:2,solidite:1,prix:350},
+{id:"G2S_SUB",marque:"🟢 2 GIRLS 1 SOUND",nom:"SUB",type:"SUB",puissance:5,stabiliteRequise:2,stabiliteApportee:0,energie:3,solidite:2,prix:500},
+{id:"G2S_MEDIUM",marque:"🟢 2 GIRLS 1 SOUND",nom:"MEDIUM",type:"MEDIUM",puissance:4,stabiliteRequise:0,stabiliteApportee:1,energie:1,solidite:1,prix:350},
+{id:"G2S_TETE_DOUBLE",marque:"🟢 2 GIRLS 1 SOUND",nom:"TÊTE DOUBLE",type:"TETE",puissance:4,stabiliteRequise:0,stabiliteApportee:2,energie:2,solidite:1,prix:600}
+];
+const equipements=[
+{id:"PALETTE",nom:"🪵 PALETTE",description:"Ajoute +1 stabilité requise au SUB auquel elle est attachée.",prix:100},
+{id:"SANGLE",nom:"🪢 SANGLE",description:"Ajoute +1 stabilité apportée. Maximum 1 par teuf.",prix:100}
+];
+const generateurs=[
+{id:"GEN_PETITE",nom:"⚡ PETITE GÉNÉRATRICE",energie:10,prix:200},
+{id:"GEN_MOYENNE",nom:"⚡ GÉNÉRATRICE MOYENNE",energie:20,prix:350},
+{id:"GEN_GROSSE",nom:"⚡ GROSSE GÉNÉRATRICE",energie:30,prix:500}
+];
+
+/* =========================================================
+   OUTILS
+========================================================= */
+function afficherMessage(t){
+ const e=document.getElementById("message");
+ e.textContent=t;e.style.display="block";
+ setTimeout(()=>e.style.display="none",2500);
+}
+function trouverObjet(id){
+ return produits.find(x=>x.id===id)||equipements.find(x=>x.id===id)||generateurs.find(x=>x.id===id);
+}
+function quantite(id){return Number(stock[id]||0)}
+function arrondir5(n){return n<=0?0:Math.ceil(n/5)*5}
+function seuilBluff(p){if(p<=10)return 1;if(p<=30)return 2;if(p<=50)return 3;if(p<=60)return 4;if(p<=80)return 5;if(p<=100)return 6;return null}
+function participants(kw){return arrondir5((kw*10)+(reputation*5))}
+
+/* =========================================================
+   SUPABASE - JOUEUR
+========================================================= */
+async function chargerStock(){
+ if(!joueurId)return;
+ const {data,error}=await supabaseClient.from("stock").select("objet,quantite").eq("joueur_id",joueurId);
+ if(error){console.error(error);return}
+ stock={};
+ (data||[]).forEach(r=>stock[r.objet]=Number(r.quantite||0));
+}
+async function actualiserJoueur(){
+ if(!joueurId)return;
+ const {data,error}=await supabaseClient.from("joueurs").select("argent,reputation").eq("id",joueurId).single();
+ if(error){console.error(error);return}
+ argent=Number(data.argent??argent);reputation=Number(data.reputation??reputation);
+}
+async function sauvegarderArgent(){
+ const {error}=await supabaseClient.from("joueurs").update({argent}).eq("id",joueurId);
+ if(error)throw error;
+}
+
+/* =========================================================
+   CRÉATION PARTIE
+========================================================= */
+async function commencerPartie(){
+ const input=document.getElementById("soundName");
+ const nom=input.value.trim();
+ if(!nom){alert("Entre le nom de ton Sound !");return}
+ soundName=nom;
+
+ const code=Math.random().toString(36).substring(2,8).toUpperCase();
+ const {data:partie,error:partieError}=await supabaseClient.from("parties").insert({
+   code,host_name:nom,status:"waiting"
+ }).select().single();
+
+ if(partieError){console.error(partieError);alert("Impossible de créer la partie.");return}
+
+ const {data:joueur,error:joueurError}=await supabaseClient.from("joueurs").insert({
+   partie_id:partie.id,sound_name:nom,argent:2500,reputation:0
+ }).select().single();
+
+ if(joueurError){console.error(joueurError);alert("Partie créée mais joueur impossible à créer.");return}
+
+ partieId=partie.id;partieCode=partie.code;joueurId=joueur.id;
+ argent=Number(joueur.argent??2500);reputation=Number(joueur.reputation??0);
+ await chargerStock();
+ afficherMenu();
+}
+
+/* =========================================================
+   MENU
+========================================================= */
+function afficherMenu(){
+ document.getElementById("app").innerHTML=`
+ <div class="page">
+  <div class="top-line"><span>RTS // ${partieCode||"001"}</span><span>SAISON 1 — ÉTÉ</span></div>
+  <div class="header"><h1>${escapeHtml(soundName)}</h1><p class="subtitle">TON SOUND SYSTEM <span class="green">// MENU PRINCIPAL</span></p></div>
+  <div class="dashboard">
+   <div class="stat"><div class="stat-title">Argent disponible</div><div class="stat-value green">${argent} €</div></div>
+   <div class="stat"><div class="stat-title">Réputation</div><div class="stat-value">★ ${reputation}</div></div>
+  </div>
+  <div class="panel" style="text-align:center;border:2px solid #b7ff00;">
+   <div class="small">CODE À PARTAGER AVEC TES POTES</div>
+   <div style="font-size:42px;font-weight:bold;letter-spacing:8px;color:#b7ff00;margin:12px 0;">${escapeHtml(partieCode||"")}</div>
+   <div class="small">Ils peuvent entrer ce code sur l'écran d'accueil.</div>
+  </div>
+
+  <div class="panel">
+   <h2>🏴 MENU PRINCIPAL</h2>
+   <button onclick="afficherBoutique()">🛒 BOUTIQUE</button><br><br>
+   <button onclick="afficherStock()">📦 MON STOCK</button><br><br>
+   <button onclick="choisirTerrain()">🎪 PRÉPARER UNE TEUF</button><br><br>
+   <button onclick="afficherInfoLinePublique()">📡 INFO LINE PUBLIQUE</button>
+  </div>
+ </div>`;
+}
+
+/* =========================================================
+   BOUTIQUE
+========================================================= */
+function afficherBoutique(){
+ let html=`<div class="page"><div class="top-line"><span>RTS // BOUTIQUE</span><span class="green">${argent} €</span></div>
+ <button class="back-button" onclick="afficherMenu()">← RETOUR AU MENU</button>
+ <div class="header"><h1>BOUTIQUE</h1><p class="subtitle">CONSTRUIS TON SOUND</p></div>
+ <div class="panel"><h2>🔊 CAISSONS</h2>`;
+
+ ["🔴 LA SONO DÉBOÎTE","🟡 KÉ-SON","🟢 2 GIRLS 1 SOUND"].forEach(m=>{
+  html+=`<div class="brand">${m}</div><div class="products">`;
+  produits.filter(p=>p.marque===m).forEach(p=>{
+   html+=`<div class="product"><div class="product-name">${p.nom}</div><div class="product-price">${p.prix} €</div>
+   <div class="details">🔊 Puissance : ${p.puissance} kW<br>🧱 ${p.type==="SUB"?"Stabilité requise":"Stabilité apportée"} : <strong>${p.type==="SUB"?p.stabiliteRequise:"+"+p.stabiliteApportee}</strong><br>⚡ Énergie : ${p.energie}<br>🛠️ Solidité : ${p.solidite}/3<br>📦 Possédé : ${quantite(p.id)}</div>
+   <button onclick="acheter('${p.id}')">ACHETER</button></div>`;
+  });
+  html+=`</div>`;
+ });
+ html+=`<div class="brand">🧰 ÉQUIPEMENTS</div><div class="products">`;
+ equipements.forEach(e=>html+=`<div class="product"><div class="product-name">${e.nom}</div><div class="product-price">${e.prix} €</div><div class="details">${e.description}<br>📦 Possédé : ${quantite(e.id)}</div><button onclick="acheter('${e.id}')">ACHETER</button></div>`);
+ html+=`</div><div class="brand">⚡ GÉNÉRATRICES</div><div class="products">`;
+ generateurs.forEach(g=>html+=`<div class="product"><div class="product-name">${g.nom}</div><div class="product-price">${g.prix} €</div><div class="details">Capacité : ${g.energie} énergie<br>📦 Possédé : ${quantite(g.id)}</div><button onclick="acheter('${g.id}')">ACHETER</button></div>`);
+ html+=`</div></div></div>`;
+ document.getElementById("app").innerHTML=html;
+}
+
+async function acheter(id){
+ const objet=trouverObjet(id);if(!objet)return;
+ if(argent<objet.prix){afficherMessage("❌ Pas assez d'argent !");return}
+ if(!joueurId){afficherMessage("❌ Joueur non connecté.");return}
+
+ const {data:ligne}=await supabaseClient.from("stock").select("id,quantite").eq("joueur_id",joueurId).eq("objet",id).maybeSingle();
+ const nouvelleQuantite=Number(ligne?.quantite||0)+1;
+ const nouvelArgent=argent-objet.prix;
+
+ const {error:argentError}=await supabaseClient.from("joueurs").update({argent:nouvelArgent}).eq("id",joueurId);
+ if(argentError){console.error(argentError);afficherMessage("❌ Paiement impossible.");return}
+
+ let stockError=null;
+ if(ligne){
+   ({error:stockError}=await supabaseClient.from("stock").update({quantite:nouvelleQuantite}).eq("id",ligne.id));
+ }else{
+   ({error:stockError}=await supabaseClient.from("stock").insert({joueur_id:joueurId,objet:id,quantite:1}));
+ }
+ if(stockError){
+   await supabaseClient.from("joueurs").update({argent}).eq("id",joueurId);
+   console.error(stockError);afficherMessage("❌ Achat non enregistré.");return;
+ }
+ argent=nouvelArgent;stock[id]=nouvelleQuantite;
+ afficherMessage(`✅ ${objet.nom} acheté !`);
+ afficherBoutique();
+}
+
+/* =========================================================
+   STOCK
+========================================================= */
+async function afficherStock(){
+ await actualiserJoueur();await chargerStock();
+ let html=`<div class="page"><div class="top-line"><span>RTS // STOCK</span><span class="green">${argent} €</span></div>
+ <button class="back-button" onclick="afficherMenu()">← RETOUR AU MENU</button>
+ <div class="header"><h1>MON STOCK</h1><p class="subtitle">TON MATÉRIEL — DONNÉES SUPABASE</p></div>`;
+
+ let total=0;
+ html+=`<div class="panel"><h2>🔊 CAISSONS</h2>`;
+ produits.forEach(p=>{
+  const q=quantite(p.id);if(q<=0)return;total+=q;
+  html+=`<div class="stock-item"><div><strong>${p.marque} — ${p.nom}</strong><br>🔊 ${p.puissance} kW · ⚡ ${p.energie} énergie · 🧱 ${p.type==="SUB"?"-"+p.stabiliteRequise+" requise":"+"+p.stabiliteApportee+" apportée"} · 🛠️ ${p.solidite}/3</div><div class="stock-count">× ${q}</div></div>`;
+ });
+ if(!total)html+=`<div class="empty">Aucun caisson.</div>`;
+ html+=`</div><div class="panel"><h2>🧰 ÉQUIPEMENTS</h2>`;
+ let eq=0;
+ equipements.forEach(e=>{const q=quantite(e.id);if(q<=0)return;eq+=q;html+=`<div class="stock-item"><div><strong>${e.nom}</strong><br>${e.description}</div><div class="stock-count">× ${q}</div></div>`});
+ if(!eq)html+=`<div class="empty">Aucun équipement.</div>`;
+ html+=`</div><div class="panel"><h2>⚡ GÉNÉRATRICES</h2>`;
+ let gg=0;
+ generateurs.forEach(g=>{const q=quantite(g.id);if(q<=0)return;gg+=q;html+=`<div class="stock-item"><div><strong>${g.nom}</strong><br>Capacité : ${g.energie} énergie</div><div class="stock-count">× ${q}</div></div>`});
+ if(!gg)html+=`<div class="empty">Aucune génératrice.</div>`;
+ html+=`</div></div>`;
+ document.getElementById("app").innerHTML=html;
+}
+
+/* =========================================================
+   TERRAIN + CONFIGURATION
+========================================================= */
+function choisirTerrain(){
+ document.getElementById("app").innerHTML=`<div class="page"><div class="top-line"><span>RTS // PRÉPARATION</span><span class="green">ÉTÉ</span></div>
+ <button class="back-button" onclick="afficherMenu()">← RETOUR AU MENU</button>
+ <div class="header"><h1>CHOISIS TON TERRAIN</h1><p class="subtitle">OÙ VA-T-ON FAIRE TREMBLER LES ARBRES ?</p></div>
+ <div class="terrain-grid">
+ ${["🌲|Forêt|Terrain naturel|Deux zones de fête|Capacité importante","🌾|Champ|Terrain ouvert|Grande zone disponible|Exposé à la météo","🏚️|Hangar|Terrain couvert|Parking extérieur|Protection partielle"].map(x=>{let[a,b,c,d,e]=x.split("|");return `<div class="terrain-card"><div class="terrain-icon">${a}</div><h2>${b}</h2><p class="details">${c}<br>${d}<br>${e}</p><button onclick="selectionnerTerrain('${b}')">CHOISIR</button></div>`}).join("")}
+ </div></div>`;
+}
+function selectionnerTerrain(t){terrainChoisi=t;configuration=[];generateurChoisi=null;palettes=[];sangleUtilisee=false;afficherConfiguration()}
+function calculerConfiguration(){
+ let puissance=0,energie=0,req=0,app=0,solidite=0;
+ configuration.forEach((id,i)=>{const p=produits.find(x=>x.id===id);if(!p)return;puissance+=p.puissance;energie+=p.energie;req+=p.stabiliteRequise;app+=p.stabiliteApportee;solidite+=p.solidite;if(p.type==="SUB"&&palettes.includes(i))req++});
+ if(sangleUtilisee)app++;
+ const gen=generateurs.find(x=>x.id===generateurChoisi);
+ return {puissance,energie,req,app,solidite,capacite:gen?gen.energie:0};
+}
+function afficherConfiguration(){
+ const s=calculerConfiguration(),stable=s.req===s.app,energyOK=!!generateurChoisi&&s.energie<=s.capacite;
+ let html=`<div class="page"><div class="top-line"><span>RTS // CONFIGURATION</span><span class="green">${terrainChoisi}</span></div>
+ <button class="back-button" onclick="choisirTerrain()">← CHANGER DE TERRAIN</button>
+ <div class="header"><h1>CONFIGURE TON SOUND</h1><p class="subtitle">UTILISE UNIQUEMENT LE MATÉRIEL DE TON STOCK</p></div>
+ <div class="panel"><h2>🔊 CAISSONS</h2>`;
+ produits.forEach(p=>{
+  const poss=quantite(p.id);if(!poss)return;
+  const used=configuration.filter(x=>x===p.id).length;
+  html+=`<div class="stock-item"><div><strong>${p.marque} — ${p.nom}</strong><br>${p.puissance} kW · ${p.energie} énergie · ${p.type==="SUB"?p.stabiliteRequise+" stabilité requise":"+"+p.stabiliteApportee+" stabilité"} · ${p.solidite}/3<br><span class="small">Possédé ${poss} · Utilisé ${used}</span></div><button style="width:180px" onclick="ajouterCaisson('${p.id}')" ${used>=poss?"disabled":""}>${used>=poss?"MAX":"AJOUTER"}</button></div>`;
+ });
+ if(!produits.some(p=>quantite(p.id)>0))html+=`<div class="empty">Achète d'abord du matériel dans la Boutique.</div>`;
+ html+=`</div><div class="panel"><h2>🪵 PALETTES</h2>`;
+ if(!quantite("PALETTE"))html+=`<div class="empty">Aucune palette.</div>`;
+ else configuration.forEach((id,i)=>{const p=produits.find(x=>x.id===id);if(p?.type!=="SUB")return;const on=palettes.includes(i);html+=`<div class="sub-option"><strong>SUB #${i+1}</strong> — ${p.marque} ${p.nom}<br>${on?'<span class="green">🪵 PALETTE INSTALLÉE</span>':'<span class="small">Aucune palette</span>'}<button onclick="${on?`retirerPalette(${i})`:`ajouterPalette(${i})`}" ${!on&&palettes.length>=quantite("PALETTE")?"disabled":""}>${on?"RETIRER LA PALETTE":"AJOUTER UNE PALETTE"}</button></div>`});
+ html+=`</div><div class="panel"><h2>🪢 SANGLE</h2>${quantite("SANGLE")?`<button onclick="toggleSangle()">${sangleUtilisee?"RETIRER LA SANGLE":"UTILISER LA SANGLE"}</button>`:`<div class="empty">Aucune sangle.</div>`}</div>`;
+ html+=`<div class="panel"><h2>⚡ GÉNÉRATRICE</h2>`;
+ generateurs.forEach(g=>{const q=quantite(g.id);if(!q)return;const sel=generateurChoisi===g.id;html+=`<div class="stock-item ${sel?"selected":""}"><div><strong>${g.nom}</strong><br>Capacité ${g.energie} · Possédé ${q}</div><button style="width:180px" onclick="choisirGenerateur('${g.id}')">${sel?"✓ SÉLECTIONNÉ":"CHOISIR"}</button></div>`});
+ html+=`</div><div class="panel"><h2>📊 RÉSUMÉ</h2>`;
+ configuration.forEach((id,i)=>{const p=produits.find(x=>x.id===id);html+=`<div class="stock-item"><div>${p.marque}<br><strong>${p.nom}</strong> — ${p.puissance} kW ${palettes.includes(i)?'<span class="yellow">🪵 PALETTE</span>':""}</div><button style="width:140px" onclick="retirerCaisson(${i})">RETIRER</button></div>`});
+ if(!configuration.length)html+=`<div class="empty">Aucun caisson sélectionné.</div>`;
+ html+=`<div class="${stable?"success-box":"warning-box"}">🧱 STABILITÉ : ${s.req} / ${s.app} — ${stable?"ÉQUILIBRÉE":"INSTABLE"}</div><div class="dashboard"><div class="stat"><div class="stat-title">Puissance</div><div class="stat-value green">${s.puissance} kW</div></div><div class="stat"><div class="stat-title">Consommation</div><div class="stat-value">${s.energie}</div></div><div class="stat"><div class="stat-title">Génératrice</div><div class="stat-value">${generateurChoisi?s.capacite:"—"}</div></div><div class="stat"><div class="stat-title">Solidité</div><div class="stat-value">${s.solidite}/3</div></div></div>`;
+ if(!generateurChoisi)html+=`<div class="warning-box">⚠️ Aucune génératrice.</div>`;else if(!energyOK)html+=`<div class="warning-box">❌ Génératrice insuffisante : ${s.energie} / ${s.capacite}</div>`;else html+=`<div class="success-box">✅ Énergie OK : ${s.energie} / ${s.capacite}</div>`;
+ html+=`<button onclick="verrouillerConfiguration()" ${!configuration.length||!stable||!energyOK?"disabled":""}>${!configuration.length?"⚠️ AJOUTE DU MATÉRIEL":!stable?"⚠️ STABILITÉ À ÉQUILIBRER":!energyOK?"⚠️ GÉNÉRATRICE INSUFFISANTE":"🔒 VALIDER LA CONFIGURATION"}</button></div></div>`;
+ document.getElementById("app").innerHTML=html;
+}
+function ajouterCaisson(id){const q=quantite(id),u=configuration.filter(x=>x===id).length;if(u>=q){afficherMessage("❌ Stock insuffisant.");return}configuration.push(id);afficherConfiguration()}
+function retirerCaisson(i){palettes=palettes.filter(x=>x!==i).map(x=>x>i?x-1:x);configuration.splice(i,1);afficherConfiguration()}
+function ajouterPalette(i){if(palettes.length>=quantite("PALETTE")){afficherMessage("❌ Plus de palette disponible.");return}if(!palettes.includes(i))palettes.push(i);afficherConfiguration()}
+function retirerPalette(i){palettes=palettes.filter(x=>x!==i);afficherConfiguration()}
+function toggleSangle(){if(!quantite("SANGLE")){afficherMessage("❌ Pas de sangle.");return}sangleUtilisee=!sangleUtilisee;afficherConfiguration()}
+function choisirGenerateur(id){if(!quantite(id)){afficherMessage("❌ Génératrice absente.");return}generateurChoisi=id;afficherConfiguration()}
+function verrouillerConfiguration(){const s=calculerConfiguration();if(!configuration.length){afficherMessage("❌ Aucun caisson.");return}if(s.req!==s.app){afficherMessage("❌ Sound instable.");return}if(!generateurChoisi||s.energie>s.capacite){afficherMessage("❌ Génératrice insuffisante.");return}afficherInfoLine()}
+
+/* =========================================================
+   INFO LINE + BLUFF
+========================================================= */
+function afficherInfoLine(){
+ infoLineTexte="";kwAnnonce=null;diceLance=false;
+ const s=calculerConfiguration();
+ document.getElementById("app").innerHTML=`<div class="page"><div class="top-line"><span>RTS // INFO LINE</span><span class="green">${terrainChoisi}</span></div>
+ <button class="back-button" onclick="afficherConfiguration()">← RETOUR CONFIGURATION</button>
+ <div class="header"><h1>📡 INFO LINE</h1><p class="subtitle">ANNONCE TA TEUF — LA COMMUNAUTÉ POURRA LA VOIR.</p></div>
+ <div class="panel"><div class="dashboard"><div class="stat"><div class="stat-title">PUISSANCE RÉELLE</div><div class="stat-value green">${s.puissance} kW</div></div><div class="stat"><div class="stat-title">RÉPUTATION</div><div class="stat-value">★ ${reputation}</div></div></div>
+ <h2>🎙️ TON ANNONCE</h2><p class="subtitle">Exemple : « Ce soir grosse teuf, 18 kilowatts, rendez-vous dans la forêt. »</p>
+ <button id="microButton" onclick="lancerMicro()">🎙️ PARLER</button><br><br>
+ <textarea id="transcription" class="transcription" placeholder="Écris ton Info Line ici..."></textarea><br><br>
+ <button onclick="analyserKW()">🔎 ANALYSER LES kW</button><br><br>
+ <button style="background:#222;color:#fff;border:1px solid #555" onclick="effacerInfoLine()">🗑️ EFFACER</button></div>
+ <div id="analyseInfoLine" class="panel"><div class="empty">Écris ton annonce puis analyse-la.</div></div></div>`;
+ mettreAJourBoutonMicro();
+}
+function analyserKW(){
+ const zone=document.getElementById("transcription");if(!zone)return;
+ infoLineTexte=zone.value.trim();if(!infoLineTexte){afficherMessage("❌ Info Line vide.");return}
+ const match=infoLineTexte.toLowerCase().replace(/,/g,".").match(/(\d+(?:\.\d+)?)\s*(?:kw|k\s*w|kilowatt|kilowatts|kilo\s*watts?)/i);
+ kwAnnonce=match?parseFloat(match[1]):null;afficherResultatKW();
+}
+function afficherResultatKW(){
+ const zone=document.getElementById("analyseInfoLine");if(!zone)return;
+ const reel=calculerConfiguration().puissance;
+ if(kwAnnonce===null){zone.innerHTML=`<div class="warning-box">⚠️ Aucun nombre de kW détecté.</div>`;return}
+ const diff=kwAnnonce-reel;
+ const bluff=diff>0&&reel>0?(diff/reel)*100:0;
+ const p=participants(kwAnnonce);
+ let html=`<div class="kw-result"><div class="stat-title">PUISSANCE ANNONCÉE</div><div class="kw-number">${kwAnnonce} kW</div><div class="stat-title">PARTICIPANTS THÉORIQUES</div><div class="participants-number">${p}</div></div>`;
+ if(diff===0)html+=`<div class="success-box">🟢 <strong>ANNONCE EXACTE</strong><br><br>Puissance réelle : ${reel} kW<br>👥 Participants retenus : <strong>${p}</strong></div>`;
+ else if(diff<0)html+=`<div class="success-box">🔵 <strong>PUISSANCE SOUS-ESTIMÉE</strong><br><br>Réelle : ${reel} kW<br>Annoncée : ${kwAnnonce} kW<br><br>👥 Participants retenus : <strong>${p}</strong></div>`;
+ else{
+   const seuil=seuilBluff(bluff);
+   if(bluff>100){
+     html+=`<div class="warning-box">🚨 <strong>BLUFF IMPOSSIBLE À SAUVER</strong><br><br>Bluff : +${bluff.toFixed(1)} %<br><br>❌ ÉCHEC AUTOMATIQUE</div>`;
+   }else{
+     html+=`<div class="warning-box">⚠️ <strong>BLUFF DÉTECTÉ</strong><br><br>Réel : ${reel} kW · Annoncé : ${kwAnnonce} kW<br>Bluff : +${bluff.toFixed(1)} %</div>
+     <div class="dice-panel"><div><strong>🎲 DIFFICULTÉ : ${seuil}+</strong></div><div id="dice" class="dice">?</div><button id="diceButton" onclick="lancerDe()">🎲 LANCER LE DÉ</button><div id="diceResult" style="margin-top:20px">Le résultat apparaîtra ici.</div></div>`;
+   }
+ }
+ html+=`<br><button onclick="publierInfoLine()">📡 PUBLIER L'INFO LINE</button>`;
+ zone.innerHTML=html;
+}
+function lancerDe(){
+ if(diceLance)return;const dice=document.getElementById("dice"),btn=document.getElementById("diceButton"),res=document.getElementById("diceResult");if(!dice||!btn||!res)return;
+ diceLance=true;btn.disabled=true;dice.classList.add("rolling");let n=0;
+ const timer=setInterval(()=>{dice.textContent=Math.floor(Math.random()*6)+1;if(++n>=10){clearInterval(timer);terminerDe()}},100);
+}
+function terminerDe(){
+ const dice=document.getElementById("dice"),res=document.getElementById("diceResult");if(!dice)return;
+ dice.classList.remove("rolling");diceResultat=Math.floor(Math.random()*6)+1;dice.textContent=diceResultat;
+ const reel=calculerConfiguration().puissance,diff=kwAnnonce-reel,bluff=(diff/reel)*100,seuil=seuilBluff(bluff),p=participants(kwAnnonce),ok=diceResultat>=seuil;
+ if(ok)res.innerHTML=`🎲 <strong class="green">${diceResultat} — BLUFF RÉUSSI !</strong><br><br>Il fallait ${seuil}+<br><br>👥 ${p} participants conservés.`;
+ else{
+   const perte=bluff>50?bluff/2:bluff;
+   const apres=arrondir5(p*Math.max(0,1-perte/100));
+   res.innerHTML=`🎲 <strong class="red">${diceResultat} — BLUFF RATÉ !</strong><br><br>Il fallait ${seuil}+<br><br>💥 Perte : ${perte.toFixed(1)} %<br>👥 ${apres} participants retenus.`;
+ }
+ diceLance=false;
+}
+
+/* =========================================================
+   INFO LINE PUBLIQUE
+========================================================= */
+async function publierInfoLine(){
+ if(!partieId||!joueurId){afficherMessage("❌ Partie non connectée.");return}
+ const texte=(document.getElementById("transcription")?.value||infoLineTexte).trim();
+ if(!texte){afficherMessage("❌ Écris une Info Line.");return}
+ const s=calculerConfiguration();
+ const bluff=kwAnnonce!==null&&s.puissance>0?Math.max(0,((kwAnnonce-s.puissance)/s.puissance)*100):0;
+ const {error}=await supabaseClient.from("info_lines").insert({
+   partie_id:partieId,
+   joueur_id:joueurId,
+   texte,
+   kw_annonce:kwAnnonce,
+   kw_reel:s.puissance,
+   participants_annonces:participants(kwAnnonce||0),
+   bluff_pourcentage:bluff
+ });
+ if(error){console.error(error);afficherMessage("❌ Publication impossible. Vérifie la table info_lines.");return}
+ afficherMessage("📡 Info Line publiée !");
+ afficherInfoLinePublique();
+}
+async function afficherInfoLinePublique(){
+ if(!partieId){afficherMenu();return}
+ const {data,error}=await supabaseClient.from("info_lines").select("*").eq("partie_id",partieId).order("created_at",{ascending:false});
+ let html=`<div class="page"><div class="top-line"><span>RTS // INFO LINE PUBLIQUE</span><span class="green">${partieCode||""}</span></div>
+ <button class="back-button" onclick="afficherMenu()">← RETOUR AU MENU</button><div class="header"><h1>📡 INFO LINE</h1><p class="subtitle">ANNONCES DE LA PARTIE</p></div><div class="panel">`;
+ if(error){html+=`<div class="warning-box">❌ Impossible de charger les annonces. Crée la table <strong>info_lines</strong> si elle n'existe pas encore.</div>`}
+ else if(!data?.length){html+=`<div class="empty">Aucune Info Line publiée pour l'instant.</div>`}
+ else data.forEach(x=>{html+=`<div class="info-card public-line"><strong>${escapeHtml(x.texte||"")}</strong><br><br><span class="small">Annonce : ${x.kw_annonce??"?"} kW · Réel : ${x.kw_reel??"?"} kW · Participants : ${x.participants_annonces??0}</span><br><span class="small">Bluff : +${Number(x.bluff_pourcentage||0).toFixed(1)} %</span></div>`});
+ html+=`</div></div>`;document.getElementById("app").innerHTML=html;
+}
+function effacerInfoLine(){const z=document.getElementById("transcription");if(z)z.value="";infoLineTexte="";kwAnnonce=null;const a=document.getElementById("analyseInfoLine");if(a)a.innerHTML=`<div class="empty">Écris ton annonce puis analyse-la.</div>`}
+
+/* =========================================================
+   SÉCURITÉ AFFICHAGE
+========================================================= */
+function escapeHtml(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+
+/* =========================================================
+   ACCUEIL
+========================================================= */
+function afficherAccueil(){
+ document.getElementById("app").innerHTML=`
+ <div class="page">
+   <div class="top-line">
+     <span>RTS // 001</span>
+     <span class="green">FREE PARTY MANAGEMENT</span>
+   </div>
+
+   <div class="header">
+     <h1>RAMÈNE<br>TON SOUND</h1>
+     <p class="subtitle">
+       Construis ton sound. Monte ta teuf.<br>
+       <span class="green">Prends des risques.</span>
+     </p>
+   </div>
+
+   <div class="panel">
+     <h2>🏴 CRÉER UNE PARTIE</h2>
+     <p class="subtitle">
+       Crée ton Sound System et reçois un <strong>code de partie</strong>
+       à envoyer à tes potes.
+     </p>
+
+     <input
+       id="soundName"
+       class="name-input"
+       type="text"
+       maxlength="40"
+       placeholder="Nom du Sound System"
+       autocomplete="off"
+       onkeydown="if(event.key==='Enter') commencerPartie()"
+     >
+
+     <br><br>
+
+     <button onclick="commencerPartie()">
+       ▶ CRÉER LA PARTIE
+     </button>
+   </div>
+
+   <div class="panel">
+     <h2>👥 REJOINDRE UNE PARTIE</h2>
+     <p class="subtitle">
+       Ton pote t'a donné un code ? Entre-le ici pour rejoindre sa partie.
+     </p>
+
+     <input
+       id="joinCode"
+       class="name-input"
+       type="text"
+       maxlength="6"
+       placeholder="CODE DE PARTIE"
+       autocomplete="off"
+       style="text-transform:uppercase"
+     >
+
+     <br><br>
+
+     <input
+       id="joinSoundName"
+       class="name-input"
+       type="text"
+       maxlength="40"
+       placeholder="Nom de ton Sound System"
+       autocomplete="off"
+       onkeydown="if(event.key==='Enter') rejoindrePartie()"
+     >
+
+     <br><br>
+
+     <button onclick="rejoindrePartie()">
+       🚪 REJOINDRE LA PARTIE
+     </button>
+   </div>
+
+   <div class="panel">
+     <h2>🎚️ LE PRINCIPE</h2>
+     <div class="details">
+       <p>🛒 <strong>BOUTIQUE</strong> — achète tes caissons, équipements et génératrices.</p>
+       <p>📦 <strong>STOCK</strong> — ton matériel est conservé dans Supabase.</p>
+       <p>🎪 <strong>PRÉPARE LA TEUF</strong> — construis ton système et vérifie sa stabilité.</p>
+       <p>📡 <strong>INFO LINE</strong> — annonce ta puissance au public.</p>
+       <p>🎲 <strong>BLUFF</strong> — annonce plus ou moins que ta puissance réelle et prends le risque.</p>
+       <p>👥 <strong>MULTIJOUEUR</strong> — partage le code de ta partie avec tes potes.</p>
+     </div>
+   </div>
+ </div>`;
+}
+
+/* =========================================================
+   REJOINDRE UNE PARTIE
+========================================================= */
+async function rejoindrePartie(){
+ const codeInput=document.getElementById("joinCode");
+ const nameInput=document.getElementById("joinSoundName");
+
+ const code=(codeInput?.value||"").trim().toUpperCase();
+ const nom=(nameInput?.value||"").trim();
+
+ if(code.length<4){
+   alert("Entre le code de la partie.");
+   return;
+ }
+
+ if(!nom){
+   alert("Entre le nom de ton Sound !");
+   return;
+ }
+
+ const {data:partie,error:partieError}=await supabaseClient
+   .from("parties")
+   .select("id,code,host_name,status")
+   .eq("code",code)
+   .maybeSingle();
+
+ if(partieError){
+   console.error(partieError);
+   alert("Impossible de rechercher la partie.");
+   return;
+ }
+
+ if(!partie){
+   alert("❌ Partie introuvable. Vérifie le code.");
+   return;
+ }
+
+ if(partie.status && partie.status !== "waiting"){
+   alert("❌ Cette partie n'accepte plus de nouveaux joueurs.");
+   return;
+ }
+
+ const {data:joueurExistant}=await supabaseClient
+   .from("joueurs")
+   .select("id,sound_name,argent,reputation")
+   .eq("partie_id",partie.id)
+   .eq("sound_name",nom)
+   .maybeSingle();
+
+ let joueur=joueurExistant;
+
+ if(!joueur){
+   const {data:nouveauJoueur,error:joueurError}=await supabaseClient
+     .from("joueurs")
+     .insert({
+       partie_id:partie.id,
+       sound_name:nom,
+       argent:2500,
+       reputation:0
+     })
+     .select()
+     .single();
+
+   if(joueurError){
+     console.error(joueurError);
+     alert("❌ Impossible de rejoindre la partie.");
+     return;
+   }
+
+   joueur=nouveauJoueur;
+ }
+
+ partieId=partie.id;
+ partieCode=partie.code;
+ joueurId=joueur.id;
+ soundName=joueur.sound_name;
+ argent=Number(joueur.argent??2500);
+ reputation=Number(joueur.reputation??0);
+
+ await chargerStock();
+ afficherMenu();
+}
+
+/* =========================================================
+   DÉMARRAGE
+========================================================= */
+afficherAccueil();
+</script>
+</body>
+</html>
